@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lucky Draw Wheel</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Lucky Draw Wheel</h1>
+
+  <div class="controls">
+    <input id="item-input" type="text" placeholder="輸入獎品 (如: Free Coffee)" />
+    <button id="add-item-btn">加入項目</button>
+    <button id="clear-items-btn">清空</button>
+  </div>
+
+  <ul id="item-list"></ul>
+
+  <div id="wheel-container">
+    <canvas id="wheel" width="400" height="400"></canvas>
+    <button id="spin-btn">SPIN</button>
+    <div id="result"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
