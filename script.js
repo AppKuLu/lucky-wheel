@@ -27,12 +27,7 @@ const dia = canvas.width;
 const rad = dia / 2;
 
 let mode = "manual";
-let sectors = [
-  { label: "Sample 1", color: "#f94144", data: { id: "S1", name: "Sample 1" } },
-  { label: "Sample 2", color: "#f3722c", data: { id: "S2", name: "Sample 2" } },
-  { label: "Sample 3", color: "#f8961e", data: { id: "S3", name: "Sample 3" } }
-];
-
+let sectors = [];
 let prizeRecords = [];
 let userRecords = [];
 let winnersLog = [];
@@ -216,13 +211,7 @@ function frame() {
 
 function appendHistoryItem(entry) {
   const li = document.createElement("li");
-  if (entry.mode === "user") {
-    li.textContent = `[${entry.time}] 中獎者：${entry.name} <${entry.email}> (ID: ${entry.id})`;
-  } else if (entry.mode === "prize") {
-    li.textContent = `[${entry.time}] 中獎禮物：${entry.name} (ID: ${entry.id}, 價值: ${entry.value})`;
-  } else {
-    li.textContent = `[${entry.time}] 結果：${entry.name}`;
-  }
+  li.textContent = `[${entry.time}] ${entry.name} / ${entry.value || entry.email || ""}`;
   historyList.appendChild(li);
 }
 
@@ -235,9 +224,9 @@ function showResult() {
   const now = new Date().toISOString().slice(0, 19).replace("T", " ");
 
   const winnerName = rec.name || winner.label;
-  const winnerGift = rec.value ? `Gift: ${rec.value}` : `Gift: ${winner.label}`;
+  const winnerGift = rec.value || winner.label;
 
-  resultEl.textContent = `結果：${winnerName}`;
+  resultEl.textContent = `結果：${winnerGift} - ${winnerName}`;
 
   const entry = {
     time: now,
@@ -262,7 +251,7 @@ function showResult() {
 
   playSound(winSound);
   fireConfetti();
-  showWinnerPopup(winnerName, winnerGift);
+  showWinnerPopup(winnerName, `Gift: ${winnerGift}`);
 
   if (!sectors.length) {
     alert("所有項目已經抽完！");
@@ -334,6 +323,12 @@ startBtn.addEventListener("click", async () => {
   resultEl.textContent = "";
   winnerModal.classList.add("hidden");
 
+  const nextItem = sectors[0];
+  const nextName = nextItem?.data?.name || nextItem?.label || "";
+  resultEl.textContent = `即將抽獎：${nextName}`;
+
+  await sleep(2000);
+
   await startCountdown(3);
 
   angVel = Math.random() * 0.35 + 0.45;
@@ -404,7 +399,8 @@ usePrizesBtn.addEventListener("click", () => {
   }
 
   mode = "prize";
-  sectors = prizeRecords.map((rec) => ({
+  const reversedPrizes = prizeRecords.slice().reverse();
+  sectors = reversedPrizes.map((rec) => ({
     label: rec.name || rec["gift item"] || "",
     color: randomColor(),
     data: rec
