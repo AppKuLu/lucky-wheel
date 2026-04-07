@@ -2,25 +2,82 @@
 <html lang="zh-HK">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lucky Draw Wheel</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Lucky Draw Wheel</h1>
+  <div class="page">
+    <header class="header">
+      <h1>Lucky Draw Wheel</h1>
+      <p class="subtitle">支援 CSV upload、Start/Stop、抽中即剔除、History、Export CSV</p>
+    </header>
 
-  <div class="controls">
-    <input id="item-input" type="text" placeholder="輸入獎品 (如: Free Coffee)" />
-    <button id="add-item-btn">加入項目</button>
-    <button id="clear-items-btn">清空</button>
+    <main class="layout">
+      <section class="panel panel-left">
+        <div class="card">
+          <h2>手動加入項目</h2>
+          <div class="controls">
+            <input id="item-input" type="text" placeholder="手動輸入項目 (Enter 加入)" />
+            <button id="add-item-btn">加入項目</button>
+            <button id="clear-items-btn" class="btn-secondary">清空項目</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Upload CSV</h2>
+          <div class="upload-grid">
+            <div class="upload-block">
+              <div class="upload-title">禮物清單</div>
+              <div class="upload-desc">CSV header: id,name,value</div>
+              <input type="file" id="prize-file" accept=".csv" />
+              <button id="use-prizes-btn">用禮物做轉盤</button>
+            </div>
+
+            <div class="upload-block">
+              <div class="upload-title">抽獎者清單</div>
+              <div class="upload-desc">CSV header: id,name,email</div>
+              <input type="file" id="user-file" accept=".csv" />
+              <button id="use-users-btn">用抽獎者做轉盤</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>目前轉盤項目</h2>
+          <ul id="item-list" class="list"></ul>
+        </div>
+
+        <div class="card">
+          <button id="export-winners-btn" class="btn-wide">Export Winners CSV</button>
+          <div id="result" class="result"></div>
+        </div>
+
+        <div class="card">
+          <h2>中獎紀錄</h2>
+          <ul id="history-list" class="list"></ul>
+        </div>
+      </section>
+
+      <section class="panel panel-right">
+        <div class="wheel-shell">
+          <div id="wheel-container">
+            <div class="pointer"></div>
+            <canvas id="wheel" width="400" height="400"></canvas>
+            <button id="start-btn" class="wheel-btn start">START</button>
+            <button id="stop-btn" class="wheel-btn stop">STOP</button>
+          </div>
+        </div>
+      </section>
+    </main>
   </div>
 
-  <ul id="item-list"></ul>
-
-  <div id="wheel-container">
-    <canvas id="wheel" width="400" height="400"></canvas>
-    <button id="spin-btn">SPIN</button>
-    <div id="result"></div>
-  </div>
+  <audio id="spin-sound" preload="auto">
+    <source src="spin.mp3" type="audio/mpeg" />
+  </audio>
+  <audio id="win-sound" preload="auto">
+    <source src="win.mp3" type="audio/mpeg" />
+  </audio>
 
   <script src="script.js"></script>
 </body>
