@@ -15,6 +15,11 @@ const exportBtn = document.getElementById("export-winners-btn");
 const historyList = document.getElementById("history-list");
 const spinSound = document.getElementById("spin-sound");
 const winSound = document.getElementById("win-sound");
+const countdownEl = document.getElementById("countdown");
+const winnerModal = document.getElementById("winner-modal");
+const winnerNameEl = document.getElementById("winner-name");
+const winnerGiftEl = document.getElementById("winner-gift");
+const winnerCloseBtn = document.getElementById("winner-close-btn");
 
 const PI = Math.PI;
 const TAU = 2 * PI;
@@ -44,10 +49,68 @@ function randomColor() {
   return `hsl(${h} 70% 55%)`;
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function startCountdown(seconds = 3) {
+  countdownEl.style.display = "block";
+
+  for (let i = seconds; i > 0; i--) {
+    countdownEl.textContent = i;
+    countdownEl.classList.remove("show");
+    void countdownEl.offsetWidth;
+    countdownEl.classList.add("show");
+    await sleep(1000);
+  }
+
+  countdownEl.textContent = "GO!";
+  countdownEl.classList.remove("show");
+  void countdownEl.offsetWidth;
+  countdownEl.classList.add("show");
+  await sleep(500);
+
+  countdownEl.style.display = "none";
+}
+
 function playSound(audioEl) {
   if (!audioEl) return;
   audioEl.currentTime = 0;
-  audioEl.play().catch(() => {});
+  const p = audioEl.play();
+  if (p && typeof p.catch === "function") p.catch(() => {});
+}
+
+function fireConfetti() {
+  if (typeof confetti !== "function") return;
+
+  confetti({
+    particleCount: 120,
+    spread: 80,
+    origin: { y: 0.65 }
+  });
+
+  setTimeout(() => {
+    confetti({
+      particleCount: 80,
+      spread: 110,
+      origin: { y: 0.6 }
+    });
+  }, 250);
+}
+
+function showWinnerPopup(name, gift) {
+  winnerNameEl.textContent = name || "";
+  winnerGiftEl.textContent = gift || "";
+  winnerModal.classList.remove("hidden");
+  requestAnimationFrame(() => winnerModal.classList.add("show"));
+  winnerCloseBtn.focus();
+}
+
+function hideWinnerPopup() {
+  winnerModal.classList.remove("show");
+  setTimeout(() => {
+    winnerModal.classList.add("hidden");
+  }, 250);
 }
 
 function updateItemList() {
@@ -171,19 +234,16 @@ function showResult() {
   const rec = winner.data || {};
   const now = new Date().toISOString().slice(0, 19).replace("T", " ");
 
-  if (mode === "user") {
-    resultEl.textContent = `中獎者：${rec.name || winner.label} <${rec.email || ""}> (ID: ${rec.id || ""})`;
-  } else if (mode === "prize") {
-    resultEl.textContent = `中獎禮物：${rec.name || winner.label} (ID: ${rec.id || ""}, 價值: ${rec.value || ""})`;
-  } else {
-    resultEl.textContent = `結果：${winner.label}`;
-  }
+  const winnerName = rec.name || winner.label;
+  const winnerGift = rec.value ? `Gift: ${rec.value}` : `Gift: ${winner.label}`;
+
+  resultEl.textContent = `結果：${winnerName}`;
 
   const entry = {
     time: now,
     mode,
     id: rec.id || "",
-    name: rec.name || winner.label,
+    name: winnerName,
     email: rec.email || "",
     value: rec.value || ""
   };
@@ -201,6 +261,8 @@ function showResult() {
   }
 
   playSound(winSound);
+  fireConfetti();
+  showWinnerPopup(winnerName, winnerGift);
 
   if (!sectors.length) {
     alert("所有項目已經抽完！");
@@ -264,13 +326,23 @@ function downloadCsv(filename, csvText) {
   URL.revokeObjectURL(url);
 }
 
-startBtn.addEventListener("click", () => {
+startBtn.addEventListener("click", async () => {
   if (spinning || sectors.length === 0) return;
+
+  startBtn.disabled = true;
+  stopBtn.disabled = true;
   resultEl.textContent = "";
+  winnerModal.classList.add("hidden");
+
+  await startCountdown(3);
+
   angVel = Math.random() * 0.35 + 0.45;
   decelerating = false;
   spinning = true;
   playSound(spinSound);
+
+  startBtn.disabled = false;
+  stopBtn.disabled = false;
   animationId = requestAnimationFrame(frame);
 });
 
@@ -367,6 +439,18 @@ exportBtn.addEventListener("click", () => {
   const csvText = objectArrayToCsv(winnersLog);
   const ts = new Date().toISOString().replace(/[:.]/g, "-");
   downloadCsv(`lucky-wheel-winners-${ts}.csv`, csvText);
+});
+
+winnerCloseBtn.addEventListener("click", hideWinnerPopup);
+
+winnerModal.addEventListener("click", (e) => {
+  if (e.target === winnerModal) hideWinnerPopup();
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !winnerModal.classList.contains("hidden")) {
+    hideWinnerPopup();
+  }
 });
 
 updateItemList();

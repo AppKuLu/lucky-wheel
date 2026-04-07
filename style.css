@@ -186,21 +186,6 @@ button:active {
   background: #fff;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
   transition: transform 0.05s linear;
-  position: relative;
-}
-
-#wheel::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 34px;
-  height: 34px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: #fff;
-  border: 2px solid #d1d5db;
-  z-index: 4;
 }
 
 .wheel-btn {
@@ -223,6 +208,104 @@ button:active {
 .wheel-btn.stop {
   top: calc(50% + 64px);
   background: var(--orange);
+}
+
+.countdown {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  z-index: 7;
+  font-size: 64px;
+  font-weight: 900;
+  color: #111827;
+  text-shadow: 0 2px 8px rgba(255, 255, 255, 0.85);
+  pointer-events: none;
+  display: none;
+}
+
+.countdown.show {
+  display: block;
+  animation: pop 0.35s ease;
+}
+
+@keyframes pop {
+  0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.modal.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  width: min(92vw, 360px);
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 18px;
+  padding: 22px 18px;
+  text-align: center;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+  transform: scale(0.92);
+  transition: transform 0.25s ease;
+  position: relative;
+}
+
+.modal.show .modal-content {
+  transform: scale(1);
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: #2563eb;
+}
+
+.modal-name {
+  font-size: 26px;
+  font-weight: 900;
+  color: #111827;
+  word-break: break-word;
+}
+
+.modal-gift {
+  margin-top: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ea580c;
+  word-break: break-word;
+}
+
+.modal-close {
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #111827;
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
 }
 
 #history-list {
